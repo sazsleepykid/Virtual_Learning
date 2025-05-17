@@ -115,6 +115,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import axios from 'axios';
 import SubjectRadarChart from "@/components/SubjectRadarChart.vue";
 import CapoeiraViewer from "@/components/CapoeiraViewer.vue";
 import NavigationBar from "@/components/NavigationBar.vue";
@@ -251,22 +252,64 @@ function getOptionColor(index) {
   return 'primary';
 }
 
+// Add new imports
+
+// Add new state for tracking quiz results
+const quizResults = ref({
+  subject: currentSubject,
+  totalQuestions: questions.value.length,
+  answers: [],
+  startTime: new Date().toISOString(),
+  endTime: null,
+  score: 0
+});
+
+// Modify checkAnswer function to store answer data
 function checkAnswer() {
   answered.value = true;
-  if (selectedAnswer.value === currentQuestion.value.correctAnswer) {
+  const isCorrect = selectedAnswer.value === currentQuestion.value.correctAnswer;
+  
+  // Store answer data
+  quizResults.value.answers.push({
+    questionIndex: currentQuestionIndex.value,
+    question: currentQuestion.value.question,
+    selectedAnswer: selectedAnswer.value,
+    correctAnswer: currentQuestion.value.correctAnswer,
+    isCorrect: isCorrect,
+    timeStamp: new Date().toISOString()
+  });
+
+  if (isCorrect) {
     feedback.value = `Correct! ${currentQuestion.value.explanation}`;
     feedbackClass.value = 'bg-success-lighten-4';
+    quizResults.value.score += 1;
   } else {
     feedback.value = `Incorrect. ${currentQuestion.value.explanation}`;
     feedbackClass.value = 'bg-error-lighten-4';
   }
 }
 
-function nextQuestion() {
+// Modify nextQuestion function to handle quiz completion
+async function nextQuestion() {
   if (isLastQuestion.value) {
-    // Handle quiz completion
+    // Set quiz end time
+    quizResults.value.endTime = new Date().toISOString();
+    
+    try {
+      // Send quiz results to backend
+      const response = await axios.post('/api/quiz-results', quizResults.value);
+      console.log('Quiz results submitted successfully:', response.data);
+      
+      // Show success message or handle response
+      // You can add your own UI feedback here
+      
+    } catch (error) {
+      console.error('Failed to submit quiz results:', error);
+      // Handle error - show error message to user
+    }
     return;
   }
+  
   currentQuestionIndex.value++;
   selectedAnswer.value = null;
   answered.value = false;

@@ -11,6 +11,7 @@ declare module 'vue' {
     AppFooter: typeof import('./components/AppFooter.vue')['default']
     CapoeiraViewer: typeof import('./components/CapoeiraViewer.vue')['default']
     CapoeiraViewerBackUp: typeof import('./components/CapoeiraViewerBackUp.vue')['default']
+    Chatbotpage: typeof import('./components/chatbotpage.vue')['default']
     ChatBubble: typeof import('./components/ChatBubble.vue')['default']
     ChatHeader: typeof import('./components/ChatHeader.vue')['default']
     ChatInput: typeof import('./components/ChatInput.vue')['default']
