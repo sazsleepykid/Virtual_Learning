@@ -1,7 +1,7 @@
 // src/services/api.ts
 import axios from 'axios';
 
-const API_KEY = "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";
+const API_KEY = "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";
 
 export const chatAPI = {
   async sendMessage(prompt: string, model: string = 'qwen/qwen3-30b-a3b:free') {

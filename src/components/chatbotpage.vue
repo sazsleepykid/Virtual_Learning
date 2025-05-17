@@ -198,7 +198,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { chatAPI } from '@/services/api';
 
 export default {
   name: 'ChatbotPage',
@@ -208,7 +208,6 @@ export default {
       userInput: '',
       messages: [],
       isLoading: false,
-      API_KEY: "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",
       currentSession: {
         title: 'Physics: Wave Theory',
         startTime: new Date(Date.now() - 20 * 60000), // 20 minutes ago
@@ -345,26 +344,8 @@ export default {
     
     async callQwenAPI(prompt) {
       try {
-        // Direct call to the OpenRouter API
-        const response = await axios.post('https://openrouter.ai/api/v1/chat/completions', {
-          model: 'qwen/qwen3-30b-a3b:free',
-          messages: [
-            {
-              role: 'user',
-              content: prompt
-            }
-          ]
-        }, {
-          headers: {
-            'Authorization': `Bearer ${this.API_KEY}`,
-            'Content-Type': 'application/json',
-            'HTTP-Referer': window.location.origin, // Required by some API providers
-            'X-Title': 'AliTeach Educational Assistant' // Optional identifier
-          }
-        });
-        
-        // Extract and return just the content
-        return response.data.choices[0].message.content;
+        // Use the chatAPI service instead of direct API calls
+        return await chatAPI.sendMessage(prompt);
       } catch (error) {
         console.error('API call failed:', error);
         throw error;
