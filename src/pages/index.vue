@@ -9,14 +9,17 @@
     </v-col>
   </v-row>
 
-  <v-row>
+  <v-row align="center" justify="center">
     <v-col cols="8" align="center" justify="center">
       <StudentBenefits />
     </v-col>
   </v-row>
-  
 
-  <ParentBenefits />
+  <v-row align="center" justify="center">
+    <v-col cols="8" align="center" justify="center">
+      <ParentBenefits />
+    </v-col>
+  </v-row>
 </template>
 
 <script setup>
