@@ -10,7 +10,6 @@
           <a href="#" class="nav-link">About</a>
           <a href="#" class="nav-link">Community</a>
         </nav>
-        <!-- Changed this part to not use an image -->
         <div class="user-avatar">
           <span>JS</span>
         </div>
@@ -21,7 +20,6 @@
       </div>
     </header>
 
-    <!-- Rest of the component remains the same -->
     <!-- Main Content -->
     <div class="main-content">
       <!-- Sidebar -->
@@ -31,23 +29,20 @@
             <span class="logo-icon">A</span>
             <span class="logo-text">AliTeach</span>
           </div>
-          <button class="new-session-btn">New Study Session</button>
+          <button class="new-session-btn" @click="startNewSession">New Study Session</button>
         </div>
 
         <div class="recent-sessions">
           <h3>Recent Study Sessions</h3>
           <ul class="session-list">
-            <li class="session-item active">
-              <span class="session-icon">P</span>
-              <span class="session-name">Physics: Wave Theory</span>
-            </li>
-            <li class="session-item">
-              <span class="session-icon">M</span>
-              <span class="session-name">Math: Calculus Review</span>
-            </li>
-            <li class="session-item">
-              <span class="session-icon">H</span>
-              <span class="session-name">History: Ancient Rome</span>
+            <li 
+              v-for="session in sessions" 
+              :key="session.id" 
+              class="session-item" 
+              :class="{ active: currentSession.title === session.title }"
+            >
+              <span class="session-icon">{{ session.icon }}</span>
+              <span class="session-name">{{ session.title }}</span>
             </li>
           </ul>
         </div>
@@ -62,8 +57,8 @@
       <main class="chat-area">
         <div class="chat-header">
           <div class="chat-title">
-            <h2>Physics: Wave Theory</h2>
-            <p class="chat-subtitle">Started 20 minutes ago</p>
+            <h2>{{ currentSession.title }}</h2>
+            <p class="chat-subtitle">{{ formattedStartTime }}</p>
           </div>
           <div class="chat-actions">
             <button class="action-btn save-btn" title="Save session">
@@ -98,67 +93,79 @@
           </div>
         </div>
 
-        <div class="chat-messages">
-          <!-- AI Message -->
-          <div class="message ai-message">
-            <div class="message-avatar">AI</div>
-            <div class="message-content">
-              <p>
-                Let's explore wave theory in physics. I've prepared some resources in
-                different formats. You can click the tabs above to filter by media type.
-                What would you like to start with?
-              </p>
-              <div class="message-actions">
-                <button class="action-link">Show video explanation</button>
-                <button class="action-link">Show text summary</button>
-                <button class="action-link">Play audio lecture</button>
-              </div>
+        <div class="chat-messages" ref="chatMessages">
+          <!-- Loading indicator -->
+          <div v-if="isLoading" class="loading-indicator">
+            <div class="typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
             </div>
           </div>
 
-          <!-- User Message -->
-          <div class="message user-message">
-            <div class="message-content">
-              <p>Can you also provide a text summary of the key wave equations?</p>
-            </div>
-          </div>
-
-          <!-- AI Message with Equations -->
-          <div class="message ai-message">
-            <div class="message-avatar">AI</div>
-            <div class="message-content">
-              <div class="message-type">TEXT</div>
-              <div class="equation-card">
-                <h3>Key Wave Equations</h3>
+          <!-- Dynamic messages -->
+          <template v-for="(message, index) in messages" :key="index">
+            <!-- AI Message -->
+            <div v-if="message.type === 'ai'" class="message ai-message">
+              <div class="message-avatar">AI</div>
+              <div class="message-content">
+                <!-- Regular text message -->
+                <template v-if="!message.isEquation">
+                  <p v-html="formatMessage(message.content)"></p>
+                  <div v-if="message.actions && message.actions.length" class="message-actions">
+                    <button 
+                      v-for="(action, actionIndex) in message.actions" 
+                      :key="actionIndex" 
+                      class="action-link"
+                    >
+                      {{ action }}
+                    </button>
+                  </div>
+                </template>
                 
-                <div class="equation-section">
-                  <h4>Wave Speed Equation:</h4>
-                  <div class="equation">v = λ × f</div>
-                  <p class="equation-description">
-                    Where v is wave speed, λ is wavelength, and f is frequency
-                  </p>
-                </div>
-                
-                <div class="equation-section">
-                  <h4>Wave Function:</h4>
-                  <div class="equation">y(x,t) = A sin(kx - ωt)</div>
-                  <p class="equation-description">
-                    Where A is amplitude, k is wave number, and ω is angular frequency
-                  </p>
-                </div>
-                
-                <p class="equation-summary">
-                  These equations are fundamental to understanding how waves
-                  propagate and interact with different mediums.
-                </p>
-                
-                <div class="equation-actions">
-                  <button class="action-btn">Download as PDF</button>
-                  <button class="action-btn">Practice problems</button>
-                </div>
+                <!-- Equation/structured message -->
+                <template v-else>
+                  <div class="message-type">{{ message.content }}</div>
+                  <div class="equation-card">
+                    <h3>{{ message.equationData.title }}</h3>
+                    
+                    <div 
+                      v-for="(section, sectionIndex) in message.equationData.sections" 
+                      :key="sectionIndex" 
+                      class="equation-section"
+                    >
+                      <h4>{{ section.title }}:</h4>
+                      <div class="equation">{{ section.equation }}</div>
+                      <p v-if="section.description" class="equation-description">
+                        {{ section.description }}
+                      </p>
+                    </div>
+                    
+                    <p class="equation-summary">
+                      {{ message.equationData.summary }}
+                    </p>
+                    
+                    <div class="equation-actions">
+                      <button 
+                        v-for="(action, actionIndex) in message.equationData.actions" 
+                        :key="actionIndex" 
+                        class="action-btn"
+                      >
+                        {{ action }}
+                      </button>
+                    </div>
+                  </div>
+                </template>
               </div>
             </div>
-          </div>
+
+            <!-- User Message -->
+            <div v-else class="message user-message">
+              <div class="message-content">
+                <p>{{ message.content }}</p>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- Chat Input -->
@@ -178,8 +185,9 @@
               placeholder="Ask a question or type / for commands..." 
               v-model="userInput"
               @keydown.enter.prevent="sendMessage"
+              :disabled="isLoading"
             ></textarea>
-            <button class="send-btn" @click="sendMessage">
+            <button class="send-btn" @click="sendMessage" :disabled="isLoading">
               <i class="icon-send"></i>
             </button>
           </div>
@@ -190,66 +198,268 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'ChatbotPage',
   emits: ['close'],
   data() {
     return {
       userInput: '',
-      messages: [
-        {
-          type: 'ai',
-          content: "Let's explore wave theory in physics. I've prepared some resources in different formats. You can click the tabs above to filter by media type. What would you like to start with?",
-          actions: ['Show video explanation', 'Show text summary', 'Play audio lecture']
-        },
-        {
-          type: 'user',
-          content: 'Can you also provide a text summary of the key wave equations?'
-        },
-        {
-          type: 'ai',
-          content: 'TEXT',
-          isEquation: true,
-          equationData: {
-            title: 'Key Wave Equations',
-            sections: [
-              {
-                title: 'Wave Speed Equation:',
-                equation: 'v = λ × f',
-                description: 'Where v is wave speed, λ is wavelength, and f is frequency'
-              },
-              {
-                title: 'Wave Function:',
-                equation: 'y(x,t) = A sin(kx - ωt)',
-                description: 'Where A is amplitude, k is wave number, and ω is angular frequency'
-              }
-            ],
-            summary: 'These equations are fundamental to understanding how waves propagate and interact with different mediums.',
-            actions: ['Download as PDF', 'Practice problems']
-          }
-        }
+      messages: [],
+      isLoading: false,
+      currentSession: {
+        title: 'Physics: Wave Theory',
+        startTime: new Date(Date.now() - 20 * 60000), // 20 minutes ago
+      },
+      sessions: [
+        { id: 1, title: 'Physics: Wave Theory', icon: 'P' },
+        { id: 2, title: 'Math: Calculus Review', icon: 'M' },
+        { id: 3, title: 'History: Ancient Rome', icon: 'H' },
       ]
     };
   },
+  computed: {
+    formattedStartTime() {
+      const minutes = Math.floor((Date.now() - this.currentSession.startTime) / 60000);
+      return `Started ${minutes} minutes ago`;
+    }
+  },
+  watch: {
+    messages: {
+      handler() {
+        this.$nextTick(() => {
+          if (this.$refs.chatMessages) {
+            this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+          }
+        });
+      },
+      deep: true
+    }
+  },
+  mounted() {
+    // Send initial greeting message
+    this.sendInitialMessage();
+  },
   methods: {
-    sendMessage() {
+    formatMessage(text) {
+      // Convert line breaks to <br> tags
+      let formatted = text.replace(/\n/g, '<br>');
+      
+      // Format inline code
+      formatted = formatted.replace(/`([^`]+)`/g, '<code>$1</code>');
+      
+      // Format bold text
+      formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      
+      // Format italic text
+      formatted = formatted.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+      
+      return formatted;
+    },
+    
+    async sendInitialMessage() {
+      this.isLoading = true;
+      try {
+        const response = await this.callQwenAPI(
+          "You are AliTeach, an AI educational assistant specialized in helping students learn effectively. " +
+          "I'm starting a new session about Physics: Wave Theory. Introduce yourself briefly and ask what specific " +
+          "aspects of wave theory I'd like to explore. Suggest a few specific topics like wave equations, " +
+          "types of waves, or practical applications."
+        );
+        
+        this.messages.push({
+          type: 'ai',
+          content: response,
+          actions: ['Show video explanation', 'Show text summary', 'Play audio lecture']
+        });
+      } catch (error) {
+        console.error('Error sending initial message:', error);
+        this.messages.push({
+          type: 'ai',
+          content: "Hello! I'm AliTeach, your AI learning assistant. I'm having trouble connecting to my knowledge base. Please try again in a moment."
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
+    async sendMessage() {
       if (!this.userInput.trim()) return;
+      
+      const userMessage = this.userInput.trim();
       
       // Add user message to chat
       this.messages.push({
         type: 'user',
-        content: this.userInput
+        content: userMessage
       });
       
       // Clear input
       this.userInput = '';
       
-      // In a real app, you would call your AI service here
-      // and then add the response to the messages array
+      // Show loading state
+      this.isLoading = true;
+      
+      try {
+        // Create context from previous messages
+        const context = this.messages
+          .slice(-6) // Include last 6 messages for context
+          .map(msg => `${msg.type === 'ai' ? 'Assistant' : 'User'}: ${msg.content}`)
+          .join('\n');
+        
+        // Create the prompt for the AI
+        const prompt = 
+          "You are AliTeach, an advanced AI educational assistant designed to help students learn effectively. " +
+          "You specialize in adapting to each student's learning style and providing personalized educational content. " +
+          "Your goal is to make complex subjects easy to understand through clear explanations, examples, and interactive learning. " +
+          "You can create educational content in various formats including text explanations, equations, diagrams descriptions, " +
+          "and practice problems. You excel at breaking down complex topics into manageable parts. " +
+          "When explaining concepts, provide real-world examples and applications to help students connect theory with practice. " +
+          "For mathematical or scientific topics, explain the underlying principles before diving into formulas. " +
+          "Always be encouraging, patient, and supportive. " +
+          "Current subject: Physics - Wave Theory\n\n" +
+          "Previous conversation:\n" + context + "\n\n" +
+          "User's latest question: " + userMessage + "\n\n" +
+          "Provide a helpful, educational response. If appropriate, include equations, examples, or offer to show different formats of learning materials.";
+        
+        const aiResponse = await this.callQwenAPI(prompt);
+        
+        // Process the response to identify any special content like equations
+        const processedResponse = this.processAIResponse(aiResponse);
+        
+        // Add AI response to chat
+        this.messages.push(processedResponse);
+        
+      } catch (error) {
+        console.error('Error sending message:', error);
+        this.messages.push({
+          type: 'ai',
+          content: "I'm sorry, I encountered an error while processing your request. Please try again."
+        });
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    
+    async callQwenAPI(prompt) {
+      try {
+        // Make API call to your backend that will call the Qwen API
+        const response = await axios.post('/api/chat', {
+          prompt: prompt,
+          model: 'qwen/qwen3-30b-a3b:free'
+        });
+        
+        return response.data.content;
+      } catch (error) {
+        console.error('API call failed:', error);
+        throw error;
+      }
+    },
+    
+    processAIResponse(response) {
+      // Check if response contains equations (simple detection)
+      const hasEquations = response.includes('=') && 
+        (response.includes('equation') || response.includes('formula') || 
+         response.includes('λ') || response.includes('ω') || 
+         response.includes('sin') || response.includes('cos'));
+      
+      // Check if it's likely a structured explanation
+      const isStructuredExplanation = response.includes('Key') && 
+        (response.includes('Equation') || response.includes('Formula') || 
+         response.includes('Concept') || response.includes('Principle'));
+      
+      if (hasEquations && isStructuredExplanation) {
+        // Try to extract title and sections
+        let title = 'Key Concepts';
+        const titleMatch = response.match(/^#\s(.+)$|^(.+?):/) || response.match(/^(.+?)\n/);
+        if (titleMatch) {
+          title = titleMatch[1] || titleMatch[2];
+        }
+        
+        // Create a structured response
+        return {
+          type: 'ai',
+          content: 'TEXT',
+          isEquation: true,
+          equationData: {
+            title: title,
+            sections: this.extractSections(response),
+            summary: this.extractSummary(response),
+            actions: ['Download as PDF', 'Practice problems']
+          }
+        };
+      } else {
+        // Regular text response
+        return {
+          type: 'ai',
+          content: response
+        };
+      }
+    },
+    
+    extractSections(text) {
+      // Simple section extraction - this could be more sophisticated
+      const sections = [];
+      
+      // Look for patterns like "1. Wave Speed Equation: v = λ × f"
+      const sectionRegex = /(?:^|\n)(?:\d+\.\s*|\*\s*|##\s*|•\s*)?([^:\n]+):\s*([^\n]+)(?:\n([^#\d\*•][^\n]+))?/g;
+      
+      let match;
+      while ((match = sectionRegex.exec(text)) !== null) {
+        const title = match[1].trim();
+        const equation = match[2].trim();
+        const description = match[3] ? match[3].trim() : '';
+        
+        if (title && equation) {
+          sections.push({
+            title: title,
+            equation: equation,
+            description: description
+          });
+        }
+      }
+      
+      // If no sections found, create a generic one
+      if (sections.length === 0) {
+        const equationMatch = text.match(/[a-z\s]+=.+/) || text.match(/[a-z\s]+:[^:]+/);
+        if (equationMatch) {
+          sections.push({
+            title: 'Key Equation',
+            equation: equationMatch[0],
+            description: 'Important relationship in wave theory'
+          });
+        }
+      }
+      
+      return sections;
+    },
+    
+    extractSummary(text) {
+      // Try to find a concluding paragraph
+      const summaryMatch = text.match(/(?:In\s+summary|To\s+summarize|Conclusion|Therefore)[^.]+\.[^.]+\./) || 
+                           text.match(/(?:\n\n|\.\s+)([^.]+\.[^.]+\.[^.]+\.)$/);
+      
+      if (summaryMatch) {
+        return summaryMatch[0].trim();
+      }
+      
+      // Fallback to a generic summary
+      return "These equations are fundamental to understanding how waves propagate and interact with different mediums.";
+    },
+    
+    startNewSession() {
+      this.currentSession = {
+        title: 'New Study Session',
+        startTime: new Date()
+      };
+      this.messages = [];
+      this.sendInitialMessage();
     }
   }
 };
 </script>
+
 
 <style scoped>
 /* Base Styles */
@@ -904,4 +1114,58 @@ export default {
     text-align: center;
   }
 }
+
+/* Loading indicator styles */
+.loading-indicator {
+  display: flex;
+  justify-content: flex-start;
+  margin: 1rem 0;
+  padding-left: 3rem;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: #00a19a;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Style for code blocks */
+code {
+  background-color: #f0f0f0;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
 </style>
