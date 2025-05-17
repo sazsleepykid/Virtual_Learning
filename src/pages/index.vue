@@ -9,35 +9,14 @@
     </v-col>
   </v-row>
 
-  <v-row>
+  <v-row align="center" justify="center">
     <v-col cols="8" align="center" justify="center">
       <StudentBenefits />
     </v-col>
   </v-row>
   
+
   <ParentBenefits />
-  
-  <!-- Chat Button -->
-  <v-btn
-    class="chat-button"
-    color="#00a19a"
-    size="large"
-    icon
-    elevation="4"
-    @click="showChat = true"
-  >
-    <v-icon>mdi-message-text</v-icon>
-  </v-btn>
-  
-  <!-- Chat Modal -->
-  <v-dialog
-    v-model="showChat"
-    fullscreen
-    transition="dialog-bottom-transition"
-    :retain-focus="false"
-  >
-    <ChatbotPage @close="showChat = false" />
-  </v-dialog>
 </template>
 
 <script setup>

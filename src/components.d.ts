@@ -17,6 +17,7 @@ declare module 'vue' {
     NavigationBar: typeof import('./components/NavigationBar.vue')['default']
     ParentBenefits: typeof import('./components/ParentBenefits.vue')['default']
     ProductTile: typeof import('./components/ProductTile.vue')['default']
+    Quiz: typeof import('./components/Quiz.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     StudentBenefits: typeof import('./components/StudentBenefits.vue')['default']

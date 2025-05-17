@@ -1,132 +1,161 @@
 <template>
-  <v-card
-    class="student-benefits-container rounded-xl pa-6"
-    color="#00c48c"
-    flat
-    style="position: relative; overflow: hidden"
-  >
-    <v-row align="center">
-      <v-col cols="12" md="7" style="z-index: 1">
-        <h2 class="text-h4 font-weight-bold mb-6 text-white">
-          For <span class="highlight">Students</span>
-        </h2>
+  <v-card class="student-feature-card mx-auto" max-width="900" elevation="2" rounded="lg">
+    <div class="pa-6 header-background" style="background-color: #2ECC71; color: white;">
+      <h2 class="text-h5 font-weight-bold">For Students</h2>
+    </div>
 
-        <v-list color="transparent" class="mb-8">
-          <v-list-item
-            v-for="(benefit, index) in benefits"
-            :key="index"
-            class="px-0 mb-2"
-            density="compact"
+    <v-container fluid class="pa-md-6 pa-4">
+      <v-row align="center">
+        <v-col cols="12" md="6">
+          <v-list lines="two" class="transparent-list py-0">
+            <v-list-item class="px-0 mb-3">
+              <template v-slot:prepend>
+                <v-icon color="green-darken-1" class="mr-3" size="28">mdi-check-circle</v-icon>
+              </template>
+              <v-list-item-title class="font-weight-medium text-body-1">
+                Learn at your own pace and get the content you need.
+              </v-list-item-title>
+            </v-list-item>
+
+            <v-list-item class="px-0 mb-3">
+              <template v-slot:prepend>
+                <v-icon color="green-darken-1" class="mr-3" size="28">mdi-check-circle</v-icon>
+              </template>
+              <v-list-item-title class="font-weight-medium text-body-1">
+                Make learning fun and engaging with tuitions, quizzes, test & quick notes.
+              </v-list-item-title>
+            </v-list-item>
+
+            <v-list-item class="px-0 mb-3">
+              <template v-slot:prepend>
+                <v-icon color="green-darken-1" class="mr-3" size="28">mdi-check-circle</v-icon>
+              </template>
+              <v-list-item-title class="font-weight-medium text-body-1">
+                See how you're doing and identify areas to improve.
+              </v-list-item-title>
+            </v-list-item>
+
+            <v-list-item class="px-0 mb-4">
+              <template v-slot:prepend>
+                <v-icon color="green-darken-1" class="mr-3" size="28">mdi-check-circle</v-icon>
+              </template>
+              <v-list-item-title class="font-weight-medium text-body-1">
+                Earn rewards for your hard work.
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+
+          <v-btn
+            color="#27AE60"
+            class="text-none mt-4 explore-button"
+            size="large"
+            rounded="lg"
+            elevation="0"
+            block
+            @click="explorePandai"
           >
-            <template v-slot:prepend>
-              <v-icon color="white" class="mr-3">mdi-check-circle</v-icon>
-            </template>
-            <v-list-item-title class="text-body-1 text-white">{{ benefit }}</v-list-item-title>
-          </v-list-item>
-        </v-list>
+            <span class="button-text mr-2">Explore Pandai for Students</span>
+            <v-icon right>mdi-arrow-right-circle-outline</v-icon>
+          </v-btn>
+        </v-col>
 
-        <v-btn
-          color="white"
-          class="text-capitalize rounded-pill font-weight-bold px-6 py-3"
-          size="large"
-          @click="exploreClicked"
-        >
-          {{ exploreText }}
-          <v-icon right dark class="ml-2" color="#00c48c">mdi-arrow-right</v-icon>
-        </v-btn>
-      </v-col>
+        <v-col cols="12" md="6" class="d-none d-md-flex align-center justify-center pa-0">
+          <v-img
+            src="@/assets/students.png"
+            alt="Students learning illustration"
+            contain
+            max-height="350"
+            class="rounded-lg"
+          ></v-img>
+        </v-col>
+      </v-row>
+    </v-container>
 
-      <v-col
-        cols="12"
-        md="5"
-        class="d-none d-md-flex justify-center align-center"
-        style="z-index: 1; position: relative"
-      >
-        <v-img
-          :src="studentImage"
-          alt="Students learning"
-          max-height="350"
-          contain
-        ></v-img>
-      </v-col>
-    </v-row>
-
-    <v-sheet
-      color="rgba(255, 255, 255, 0.9)"
-      class="baseline-features-bar rounded-pill pa-3 mt-8 d-flex align-center justify-space-around flex-wrap"
-      style="z-index: 1; position: relative"
-    >
-      <span class="font-weight-medium mr-2" style="color: #333">Baseline:</span>
-      <div
-        v-for="(step, index) in progressSteps"
-        :key="index"
-        class="d-flex align-center mx-1 my-1"
-      >
-        <span class="text-body-2 font-weight-medium" style="color: #333">{{ step }}</span>
-        <v-icon
-          v-if="index < progressSteps.length - 1"
-          small
-          color="#BDBDBD"
-          class="mx-1"
-        >mdi-chevron-right</v-icon>
-      </div>
+    <v-sheet color="grey-lighten-4" class="pa-4 mt-md-2 rounded-b-lg">
+      <v-row align="center" justify="center" class="text-center text-md-left">
+        <v-col cols="auto" class="py-2 px-2 px-md-3">
+          <span class="font-weight-bold text-subtitle-1" style="color: #2c3e50;">Baseline:</span>
+        </v-col>
+        <v-col cols="12" sm="auto" class="py-1 py-md-2 px-2 px-md-3 d-flex align-center justify-center">
+          <span class="text-body-2" style="color: #34495e;">Personalized Learning</span>
+          <v-icon size="small" class="mx-1 d-none d-sm-inline-block" color="grey-darken-1">mdi-chevron-right</v-icon>
+        </v-col>
+        <v-col cols="12" sm="auto" class="py-1 py-md-2 px-2 px-md-3 d-flex align-center justify-center">
+          <span class="text-body-2" style="color: #34495e;">Interactive Content</span>
+          <v-icon size="small" class="mx-1 d-none d-sm-inline-block" color="grey-darken-1">mdi-chevron-right</v-icon>
+        </v-col>
+        <v-col cols="12" sm="auto" class="py-1 py-md-2 px-2 px-md-3 d-flex align-center justify-center">
+          <span class="text-body-2" style="color: #34495e;">Trackable Progress</span>
+          <v-icon size="small" class="mx-1 d-none d-sm-inline-block" color="grey-darken-1">mdi-chevron-right</v-icon>
+        </v-col>
+        <v-col cols="12" sm="auto" class="py-1 py-md-2 px-2 px-md-3 d-flex align-center justify-center">
+          <span class="text-body-2" style="color: #34495e;">Rewards</span>
+        </v-col>
+      </v-row>
     </v-sheet>
   </v-card>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import studentsImage from '@/assets/students.png';
+// Using <script setup> for a cleaner component structure (Vue 3.2+)
+// No specific reactive properties or methods needed for this static display,
+// but you can define them here if interactivity is added.
 
-const studentImage = studentsImage;
-
-const benefits = ref([
-  'Learn at your own pace and get the content you need.',
-  'Make learning fun and engaging with tuitions, quizzes, test & quick notes.',
-  'See how you\'re doing and identify areas to improve.',
-  'Earn rewards for your hard work.'
-]);
-
-const progressSteps = ref([
-  'Personalized Learning',
-  'Interactive Content',
-  'Trackable Progress',
-  'Rewards'
-]);
-
-const exploreText = ref('Explore Pandai for Students');
-
-const exploreClicked = () => {
-  console.log('Explore button clicked');
-  // Add your navigation or action logic here
+// Method for the button click
+const explorePandai = () => {
+  console.log('Explore Pandai for Students button clicked!');
+  // Add navigation or other actions here
 };
-
-// Component name definition using defineOptions (Vue 3.3+)
-defineOptions({
-  name: 'StudentBenefits'
-});
 </script>
 
 <style scoped>
-.student-benefits-container {
-  font-family: Arial, sans-serif;
+/* Scoped styles for the component */
+.student-feature-card {
+  border: 1px solid #e0e0e0; /* Subtle border */
+  overflow: hidden; /* Ensures content respects rounded corners */
 }
 
-.highlight {
+.header-background {
+  /* The green background for the header is set inline for simplicity,
+     but could be a CSS variable or a prop for more flexibility. */
+}
+
+.transparent-list .v-list-item {
+  background-color: transparent !important;
+}
+
+.explore-button {
   font-weight: bold;
+  letter-spacing: 0.5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Responsive adjustments for baseline features bar */
-@media (max-width: 600px) {
-  .baseline-features-bar {
-    flex-direction: column;
-    align-items: flex-start;
+.explore-button:hover {
+  background-color: #229954 !important; /* Slightly darker green on hover */
+  transform: translateY(-2px);
+}
+
+.button-text {
+  color: white; /* Ensure text is white */
+}
+
+/* Ensure v-icon in button is also white */
+.explore-button .v-icon {
+  color: white !important;
+}
+
+/* Responsive adjustments for the baseline section */
+@media (max-width: 599px) { /* Vuetify's 'xs' breakpoint */
+  .baseline-item {
+    justify-content: center;
+    text-align: center;
   }
-  .baseline-features-bar > div {
-    margin-bottom: 4px;
+  .baseline-item .v-icon {
+    display: none !important; /* Hide chevrons on extra small screens */
+  }
+  .v-sheet.pa-4 {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
   }
 }
 </style>
-export default {
-  name: 'StudentBenefits'
-}

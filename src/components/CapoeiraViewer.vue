@@ -6,37 +6,42 @@
     </div> -->
   </div>
 </template>
-  
+
 <script setup>
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
-import * as THREE from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import * as THREE from "three";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 // Props for dynamic control
 const props = defineProps({
   // Animation to play
   animation: {
     type: String,
-    default: ''
+    default: "",
   },
   // Auto-play animation on mount
   autoPlay: {
     type: Boolean,
-    default: false
+    default: false,
   },
   // Whether to stop the current animation
   stopAnimation: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 // Emit events
-const emit = defineEmits(['animationStarted', 'animationStopped', 'modelLoaded', 'error']);
+const emit = defineEmits([
+  "animationStarted",
+  "animationStopped",
+  "modelLoaded",
+  "error",
+]);
 
 const canvasContainerRef = ref(null);
-const currentAnimationName = ref('');
+const currentAnimationName = ref("");
 const isModelLoaded = ref(false);
 
 let renderer, scene, camera, controls, mixer;
@@ -47,27 +52,40 @@ let characterModel = null; // To store the loaded character mesh/group
 
 // Define keys for your animations and map them to FBX file paths
 const ANIMATION_FILES = {
-  JumpPushUp: new URL('../assets/models/Jump_push_up.fbx', import.meta.url).href,
-  LegStretchDance: new URL('../assets/models/Leg_stretch_dance.fbx', import.meta.url).href,
-  Situps: new URL('../assets/models/situps.fbx', import.meta.url).href,
-  Waving: new URL('../assets/models/Waving.fbx', import.meta.url).href,
+  JumpPushUp: new URL("../assets/models/Jump_push_up.fbx", import.meta.url)
+    .href,
+  LegStretchDance: new URL(
+    "../assets/models/Leg_stretch_dance.fbx",
+    import.meta.url
+  ).href,
+  Situps: new URL("../assets/models/situps.fbx", import.meta.url).href,
+  Waving: new URL("../assets/models/Waving.fbx", import.meta.url).href,
 };
-const CHARACTER_MODEL_FILE = new URL('../assets/models/model.fbx', import.meta.url).href;
-const IDLE_ANIMATION_KEY = 'Idle';
+const CHARACTER_MODEL_FILE = new URL(
+  "../assets/models/model.fbx",
+  import.meta.url
+).href;
+const IDLE_ANIMATION_KEY = "Idle";
 
 // Watch for animation prop changes
-watch(() => props.animation, (newAnimation) => {
-  if (newAnimation && isModelLoaded.value) {
-    triggerAnimation(newAnimation);
+watch(
+  () => props.animation,
+  (newAnimation) => {
+    if (newAnimation && isModelLoaded.value) {
+      triggerAnimation(newAnimation);
+    }
   }
-});
+);
 
 // Watch for stop animation prop changes
-watch(() => props.stopAnimation, (shouldStop) => {
-  if (shouldStop && isModelLoaded.value) {
-    stopCurrentAnimation();
+watch(
+  () => props.stopAnimation,
+  (shouldStop) => {
+    if (shouldStop && isModelLoaded.value) {
+      stopCurrentAnimation();
+    }
   }
-});
+);
 
 const initThree = async () => {
   const container = canvasContainerRef.value;
@@ -81,11 +99,19 @@ const initThree = async () => {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
+
+
+
   // 2. Scene
   scene = new THREE.Scene();
 
   // 3. Camera
-  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(
+    45,
+    container.clientWidth / container.clientHeight,
+    0.1,
+    1000
+  );
   camera.position.set(0, 1.5, 5);
 
   // 4. Lights
@@ -110,7 +136,7 @@ const initThree = async () => {
     characterModel = await fbxLoader.loadAsync(CHARACTER_MODEL_FILE);
     characterModel.scale.set(0.01, 0.01, 0.01);
     characterModel.position.set(0, 0, 0);
-    characterModel.traverse(child => {
+    characterModel.traverse((child) => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
@@ -125,7 +151,9 @@ const initThree = async () => {
     for (const animKey in ANIMATION_FILES) {
       const animPath = ANIMATION_FILES[animKey];
       if (!animPath) {
-        console.warn(`Animation path for key "${animKey}" is undefined. Skipping.`);
+        console.warn(
+          `Animation path for key "${animKey}" is undefined. Skipping.`
+        );
         continue;
       }
       try {
@@ -143,8 +171,15 @@ const initThree = async () => {
           console.warn(`No animations found in ${animPath} for key ${animKey}`);
         }
       } catch (error) {
-        console.error(`Error loading animation ${animPath} for key ${animKey}:`, error);
-        emit('error', { type: 'animation', key: animKey, message: error.message });
+        console.error(
+          `Error loading animation ${animPath} for key ${animKey}:`,
+          error
+        );
+        emit("error", {
+          type: "animation",
+          key: animKey,
+          message: error.message,
+        });
       }
     }
 
@@ -154,20 +189,23 @@ const initThree = async () => {
       activeAction.play();
       currentAnimationName.value = IDLE_ANIMATION_KEY;
     } else {
-      currentAnimationName.value = 'None (No Idle Animation Loaded)';
+      currentAnimationName.value = "None (No Idle Animation Loaded)";
     }
 
     isModelLoaded.value = true;
-    emit('modelLoaded');
+    emit("modelLoaded");
 
     // Auto-play animation if specified
-    if (props.autoPlay && props.animation && animationActions[props.animation]) {
+    if (
+      props.autoPlay &&
+      props.animation &&
+      animationActions[props.animation]
+    ) {
       triggerAnimation(props.animation);
     }
-
   } catch (error) {
     console.error("Error loading character model:", error);
-    emit('error', { type: 'model', message: error.message });
+    emit("error", { type: "model", message: error.message });
     return;
   }
 
@@ -175,7 +213,7 @@ const initThree = async () => {
   animate();
 
   // 10. Handle Resize
-  window.addEventListener('resize', onWindowResize);
+  window.addEventListener("resize", onWindowResize);
 };
 
 const triggerAnimation = (animationKey) => {
@@ -191,7 +229,7 @@ const triggerAnimation = (animationKey) => {
   }
 
   currentAnimationName.value = animationKey;
-  emit('animationStarted', animationKey);
+  emit("animationStarted", animationKey);
 
   if (activeAction) {
     activeAction.fadeOut(0.3);
@@ -203,39 +241,49 @@ const triggerAnimation = (animationKey) => {
 
 const stopCurrentAnimation = () => {
   if (!activeAction || !activeAction.isRunning()) {
-    if (animationActions[IDLE_ANIMATION_KEY] && activeAction !== animationActions[IDLE_ANIMATION_KEY]) {
-      if(activeAction) activeAction.fadeOut(0.1);
+    if (
+      animationActions[IDLE_ANIMATION_KEY] &&
+      activeAction !== animationActions[IDLE_ANIMATION_KEY]
+    ) {
+      if (activeAction) activeAction.fadeOut(0.1);
       animationActions[IDLE_ANIMATION_KEY].reset().fadeIn(0.3).play();
       activeAction = animationActions[IDLE_ANIMATION_KEY];
       currentAnimationName.value = IDLE_ANIMATION_KEY;
     } else if (!animationActions[IDLE_ANIMATION_KEY]) {
-      currentAnimationName.value = 'Stopped (No Idle)';
+      currentAnimationName.value = "Stopped (No Idle)";
     }
     return;
   }
 
   const actionBeingStopped = activeAction;
   actionBeingStopped.fadeOut(0.3);
-  emit('animationStopped', currentAnimationName.value);
+  emit("animationStopped", currentAnimationName.value);
 
-  if (animationActions[IDLE_ANIMATION_KEY] && actionBeingStopped !== animationActions[IDLE_ANIMATION_KEY]) {
+  if (
+    animationActions[IDLE_ANIMATION_KEY] &&
+    actionBeingStopped !== animationActions[IDLE_ANIMATION_KEY]
+  ) {
     const idle = animationActions[IDLE_ANIMATION_KEY];
     idle.reset().fadeIn(0.3).play();
     activeAction = idle;
     currentAnimationName.value = IDLE_ANIMATION_KEY;
   } else {
     setTimeout(() => {
-      if (actionBeingStopped && actionBeingStopped.isRunning() && actionBeingStopped === activeAction) {
+      if (
+        actionBeingStopped &&
+        actionBeingStopped.isRunning() &&
+        actionBeingStopped === activeAction
+      ) {
         actionBeingStopped.stop();
       }
     }, 300);
 
     if (actionBeingStopped === animationActions[IDLE_ANIMATION_KEY]) {
       activeAction = null;
-      currentAnimationName.value = 'Idle Stopped';
+      currentAnimationName.value = "Idle Stopped";
     } else {
       activeAction = null;
-      currentAnimationName.value = 'Stopped';
+      currentAnimationName.value = "Stopped";
     }
   }
 };
@@ -244,7 +292,7 @@ const stopCurrentAnimation = () => {
 defineExpose({
   triggerAnimation,
   stopCurrentAnimation,
-  getAvailableAnimations: () => Object.keys(animationActions)
+  getAvailableAnimations: () => Object.keys(animationActions),
 });
 
 const animate = () => {
@@ -269,16 +317,16 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener('resize', onWindowResize);
+  window.removeEventListener("resize", onWindowResize);
   if (renderer) {
     renderer.dispose();
   }
   if (scene) {
-    scene.traverse(object => {
+    scene.traverse((object) => {
       if (object.geometry) object.geometry.dispose();
       if (object.material) {
         if (Array.isArray(object.material)) {
-          object.material.forEach(material => material.dispose());
+          object.material.forEach((material) => material.dispose());
         } else {
           object.material.dispose();
         }
@@ -288,7 +336,7 @@ onBeforeUnmount(() => {
   characterModel = null;
 });
 </script>
-  
+
 <style scoped>
 .viewer-container {
   display: flex;
@@ -310,7 +358,7 @@ onBeforeUnmount(() => {
   padding: 10px;
   background-color: #e9e9e9;
   border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .animation-status p {

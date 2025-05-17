@@ -48,7 +48,7 @@
         style="z-index: 1; position: relative"
       >
         <img
-          :src="parentIllustration"
+          src="@/assets/parents.png"
           alt="Parents Illustration"
           style="max-width: 100%; height: auto; max-height: 350px"
         />
@@ -102,7 +102,7 @@ export default {
       ],
       // Replace with your actual image path or a prop
       parentIllustration:
-        "https://placehold.co/400x350/FFF9C4/795548?text=Illustration",
+        "@assets/parents.png",
     };
   },
   // If you want to pass the illustration as a prop:
