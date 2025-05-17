@@ -104,7 +104,7 @@
     </v-row>
 
     <v-row align="center" justify="center">
-      <v-col cols="8" align="center" justify="center">
+      <v-col cols="12" align="center" justify="center">
         <StudentBenefits />
       </v-col>
     </v-row>

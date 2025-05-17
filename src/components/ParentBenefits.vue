@@ -48,7 +48,7 @@
         style="z-index: 1; position: relative"
       >
         <img
-          :src="parentIllustration"
+          src="@/assets/parents.png"
           alt="Parents Illustration"
           style="max-width: 100%; height: auto; max-height: 350px"
         />
